@@ -1,9 +1,18 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Scanner;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.zip.DataFormatException;
 
+/**
+ * @author Tim
+ * <p>
+ * TrellisFileParser:
+ * A class to parse a text file for edge information and return a Trellis
+ */
 public class TrellisFileParser {
+    // File path information
     private String filePath;
 
     public TrellisFileParser(String filePath) {
@@ -18,47 +27,50 @@ public class TrellisFileParser {
         this.filePath = filePath;
     }
 
-    public Trellis parseFile() throws Exception {
+    // Parse the file for information
+    public Trellis parseFile() {
         Trellis t = new Trellis();
-        File f = new File(filePath);
-        FileReader fr = new FileReader(f);
-        BufferedReader bfr = new BufferedReader(fr);
-        Scanner sc;
+        try {
+            BufferedReader bfr = new BufferedReader(new FileReader(filePath));
 
-        // Read in nodes
-        while(true) {
-            String line = bfr.readLine();
-            if(line.equals("---")) {
-                break;
+            for (String line = bfr.readLine(); line != null; line = bfr.readLine()) {
+                // Comment feature
+                if (line.charAt(0) == '#') {
+                    continue;
+                }
+
+                int startLayerNumber = Integer.parseInt(line.substring(0, line.indexOf(",")));
+                line = line.substring(line.indexOf(",") + 1);
+
+                int startNodeIndex = Integer.parseInt(line.substring(0, line.indexOf(",")));
+                line = line.substring(line.indexOf(",") + 1);
+                int endLayerNumber = Integer.parseInt(line.substring(0, line.indexOf(",")));
+                line = line.substring(line.indexOf(",") + 1);
+                int endNodeIndex = Integer.parseInt(line.substring(0, line.indexOf(",")));
+                line = line.substring(line.indexOf(",") + 1);
+                double weight = Double.parseDouble(line);
+
+                try {
+                    t.putEdge(startLayerNumber, endLayerNumber, startNodeIndex, endNodeIndex, weight);
+                } catch (EdgeException e) {
+                    e.printStackTrace();
+                }
             }
-            sc = new Scanner(line);
 
-            int layerNumber = sc.nextInt();
-            String nodeContents = sc.nextLine();
-
-            t.putNode(new Node(nodeContents), layerNumber);
+            bfr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
 
-        // Read in edges
-
-        while(true) {
-            String line = bfr.readLine();
-            if(line.equals("---")) {
-                break;
+        // Print input verification errors
+        ArrayList<String> errors = t.verify();
+        if (errors.size() > 0) {
+            System.err.println("Errors with input data:");
+            for (String err : errors) {
+                System.err.println(err);
             }
-            sc = new Scanner(line);
-
-            int startLayerNumber = sc.nextInt();
-            String startNodeContents = sc.nextLine();
-            int endLayerNumber = sc.nextInt();
-            String endNodeContents = sc.nextLine();
-            double weight = sc.nextDouble();
-
-            t.putEdge(new Edge(startLayerNumber, endLayerNumber, new Node(startNodeContents), new Node(endNodeContents), weight));
         }
-
-        bfr.close();
-        fr.close();
 
         return t;
     }

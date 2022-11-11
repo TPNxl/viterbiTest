@@ -1,18 +1,21 @@
+/**
+ * Node: a wrapper class for a double representing a node in the trellis
+ */
 public class Node {
-    private final String data;
+    private double value;
 
-    public Node(String data) {
-        this.data = data;
+    public Node(double value) {
+        this.value = value;
     }
 
-    public String getData() {
-        return data;
+    public Node() {
     }
 
-    public boolean equals(Object o) {
-        if (o instanceof Node) {
-            return ((Node) o).getData().equals(data);
-        }
-        return false;
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(double v) {
+        value = v;
     }
 }

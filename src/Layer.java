@@ -1,8 +1,12 @@
 import java.util.ArrayList;
 
+/**
+ * Layer: a wrapper class for an ArrayList<Node> representing a layer in the trellis
+ */
 public class Layer {
-    private final ArrayList<Node> nodes;
+    protected final ArrayList<Node> nodes;
 
+    // Constructor methods
     public Layer(ArrayList<Node> nodes) {
         this.nodes = nodes;
     }
@@ -11,10 +15,12 @@ public class Layer {
         this.nodes = new ArrayList<>();
     }
 
-    public ArrayList<Node> getNodes() {
-        return nodes;
+    public Layer duplicate() {
+        ArrayList<Node> newNodes = new ArrayList<>(nodes);
+        return new Layer(newNodes);
     }
 
+    // Node operations
     public Node get(int index) {
         return nodes.get(index);
     }
